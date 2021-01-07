@@ -56,6 +56,7 @@ class CryptoTrader(QThread):
                     before_trading_dic = {}
                     for ticker in coin_list:
                         before_trading_dic[ticker] = {}
+                        before_trading_dic[ticker]['final_invest_price'] = 0
                         before_trading_dic[ticker]['current_price'] = pybithumb.get_current_price(ticker)
                         before_trading_dic[ticker]['target_price'] = 0
                         before_trading_dic[ticker]['check_target_price'] = False
@@ -69,7 +70,7 @@ class CryptoTrader(QThread):
                         trading_amt = {}
                         for ticker in coin_list:
                             coin_list_dic[ticker] = {}
-
+                            coin_list_dic[ticker]['final_invest_price'] = 0
                             coin_list_dic[ticker]['current_price'] = 0
                             coin_list_dic[ticker]['target_price'] = 0
                             coin_list_dic[ticker]['check_target_price'] = False
@@ -212,11 +213,15 @@ class My_window(QMainWindow):
         super().__init__()
         self.table = QTableWidget(self)
         self.setWindowTitle('가상화폐 트레이딩 봇')
-        self.setFixedWidth(430)
-        self.table.resize(500, 60 * len(coin_list))
-        self.table.setColumnCount(4)
-        self.table.setRowCount(len(coin_list))
-        self.table.setHorizontalHeaderLabels(['가상화폐', '현재가', '타켓가', '매수 여부'])
+
+        self.setFixedWidth(510)
+        self.table.resize(500, 80 * len(coin_list))
+        self.table.setColumnCount(5)
+        self.table.setRowCount(len(coin_list) + 1)
+        self.table.setHorizontalHeaderLabels(['가상화폐', '현재가', '타켓가', '투자금액', '매수 여부'])
+        self.table.setSpan(len(coin_list), 1,1,4)
+        self.table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.table.resizeRowsToContents()
 
         self.crypto_trader = CryptoTrader()
         self.crypto_trader.finished.connect(self.update_value)
@@ -229,10 +234,13 @@ class My_window(QMainWindow):
                 self.table.setItem(int(num), 0, QTableWidgetItem(ticker_info[0]))
                 self.table.setItem(int(num), 1, QTableWidgetItem(str(ticker_info[1]['current_price'])))
                 self.table.setItem(int(num), 2, QTableWidgetItem(str(ticker_info[1]['target_price'])))
+                self.table.setItem(int(num), 3, QTableWidgetItem(str(ticker_info[1]['final_invest_price'])))
                 if ticker_info[1]['buy_end'] == True:
-                    self.table.setItem(int(num), 3, QTableWidgetItem('매수완료'))
+                    self.table.setItem(int(num), 4, QTableWidgetItem('매수완료'))
                 else:
-                    self.table.setItem(int(num), 3, QTableWidgetItem('매수전'))
+                    self.table.setItem(int(num), 4, QTableWidgetItem('매수전'))
+            self.table.setItem(len(coin_list), 0, QTableWidgetItem('잔고'))
+            self.table.setItem(len(coin_list), 1, QTableWidgetItem(str(bithumb.get_balance("BTC")[2])))
         except :
             pass
 if __name__ == "__main__":
