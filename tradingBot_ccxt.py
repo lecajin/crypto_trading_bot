@@ -51,7 +51,7 @@ target_volatility = float(key_list[2])  # 수용가능한 변동성은 2%
 
 exchange = ccxt.bithumb({'apiKey':con_key,
                     'secret':sec_key,
-                    'enableRateLimit': False, #변동성 돌파는 시장가로 매매, 시장가가 싫으면 True로.
+                    'enableRateLimit': False  #변동성 돌파는 시장가로 매매, 시장가가 싫으면 True로.
                     })
 
 ready_trading = False
